@@ -6,13 +6,37 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		730B165B2F42BF7400ADF91B /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730B165A2F42BF6A00ADF91B /* NetworkManager.swift */; };
+		734932A52F2DA4AD0093F286 /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734932A42F2DA4AD0093F286 /* CameraManager.swift */; };
+		734932A72F2DA6440093F286 /* SensorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734932A62F2DA6440093F286 /* SensorManager.swift */; };
+		734932A92F2DA70A0093F286 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734932A82F2DA70A0093F286 /* CameraPreview.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		730B165A2F42BF6A00ADF91B /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		734932942F2DA36B0093F286 /* RoadLogger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoadLogger.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		734932A42F2DA4AD0093F286 /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		734932A62F2DA6440093F286 /* SensorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorManager.swift; sourceTree = "<group>"; };
+		734932A82F2DA70A0093F286 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		734932A32F2DA3FE0093F286 /* Exceptions for "RoadLogger" folder in "RoadLogger" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 734932932F2DA36B0093F286 /* RoadLogger */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		734932962F2DA36B0093F286 /* RoadLogger */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				734932A32F2DA3FE0093F286 /* Exceptions for "RoadLogger" folder in "RoadLogger" target */,
+			);
 			path = RoadLogger;
 			sourceTree = "<group>";
 		};
@@ -32,6 +56,10 @@
 		7349328B2F2DA36B0093F286 = {
 			isa = PBXGroup;
 			children = (
+				730B165A2F42BF6A00ADF91B /* NetworkManager.swift */,
+				734932A42F2DA4AD0093F286 /* CameraManager.swift */,
+				734932A62F2DA6440093F286 /* SensorManager.swift */,
+				734932A82F2DA70A0093F286 /* CameraPreview.swift */,
 				734932962F2DA36B0093F286 /* RoadLogger */,
 				734932952F2DA36B0093F286 /* Products */,
 			);
@@ -119,6 +147,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				730B165B2F42BF7400ADF91B /* NetworkManager.swift in Sources */,
+				734932A92F2DA70A0093F286 /* CameraPreview.swift in Sources */,
+				734932A52F2DA4AD0093F286 /* CameraManager.swift in Sources */,
+				734932A72F2DA6440093F286 /* SensorManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,8 +283,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V4222LQFQH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RoadLogger/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "本应用需要访问您的摄像头，以拍摄路况视频";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "需要记录GPS轨迹";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "需要录制环境声音";
+				INFOPLIST_KEY_NSMotionUsageDescription = "需要记录车辆震动数据";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -282,8 +321,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = V4222LQFQH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RoadLogger/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "本应用需要访问您的摄像头，以拍摄路况视频";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "需要记录GPS轨迹";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "需要录制环境声音";
+				INFOPLIST_KEY_NSMotionUsageDescription = "需要记录车辆震动数据";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
