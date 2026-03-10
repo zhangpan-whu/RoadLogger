@@ -44,6 +44,7 @@ class SensorManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var acceleration = ThreeAxisData()
     @Published var rotation = ThreeAxisData()
     @Published var currentSpeed: Double = 0.0
+    @Published var currentLocation: CLLocation? // 新增：公开位置信息
     
     // MARK: - 录制状态
     @Published var isRecording = false
@@ -51,7 +52,6 @@ class SensorManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     // 内部数据存储
     private var dataPoints: [SensorDataPoint] = []
     private var timer: Timer?
-    private var currentLocation: CLLocation?
     private var sessionTimestamp: Int = 0
     
     override init() {
@@ -180,3 +180,4 @@ class SensorManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         self.currentLocation = latest
     }
 }
+
