@@ -97,9 +97,10 @@ class NetworkManager: ObservableObject {
     }
     
     // 新增：异步版本的上传方法 - 修改为使用公网IP
-    func uploadFiles(videoUrl: URL, csvUrl: URL) async -> Bool {
+    // 【修改部分】修改返回类型，包含解析后的 AnalysisResponse
+    func uploadFiles(videoUrl: URL, csvUrl: URL) async -> (Bool, AnalysisResponse?) {
         isUploading = true
-        uploadMessage = "正在上传文件..."
+        uploadMessage = "正在上传并分析(可能需要几十秒)..." // 【修改部分】更新提示语
         
         defer {
             isUploading = false
@@ -108,12 +109,12 @@ class NetworkManager: ObservableObject {
         // 检查文件是否存在
         guard FileManager.default.fileExists(atPath: videoUrl.path) else {
             uploadMessage = "视频文件不存在: \(videoUrl.path)"
-            return false
+            return (false,nil)
         }
         
         guard FileManager.default.fileExists(atPath: csvUrl.path) else {
             uploadMessage = "CSV文件不存在: \(csvUrl.path)"
-            return false
+            return (false,nil)
         }
         
         let boundary = UUID().uuidString
@@ -121,7 +122,7 @@ class NetworkManager: ObservableObject {
         guard let videoData = try? Data(contentsOf: videoUrl),
               let csvData = try? Data(contentsOf: csvUrl) else {
             uploadMessage = "读取文件失败"
-            return false
+            return (false,nil)
         }
         
         print("Video size: \(videoData.count) bytes") // 添加调试信息
@@ -129,7 +130,7 @@ class NetworkManager: ObservableObject {
         
         // 创建带超时的URLSession配置
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 60 // 60秒请求超时
+        config.timeoutIntervalForRequest = 120 // 【修改部分】大模型分析较慢，将超时时间延长至 120 秒
         config.timeoutIntervalForResource = 300 // 300秒资源超时
         let session = URLSession(configuration: config)
         
@@ -150,6 +151,7 @@ class NetworkManager: ObservableObject {
         
         // 添加CSV文件
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        // 【修改部分】将 name=\"sensor_data\" 改为 name=\"sensor\"，与 FastAPI 后端参数名对齐
         body.append("Content-Disposition: form-data; name=\"sensor\"; filename=\"\(csvUrl.lastPathComponent)\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: text/csv\r\n\r\n".data(using: .utf8)!)
         body.append(csvData)
@@ -161,36 +163,43 @@ class NetworkManager: ObservableObject {
         request.httpBody = body
         
         do {
-            print("开始上传到: \(serverUrl)") // 添加调试信息
-            print("请求体大小: \(request.httpBody?.count ?? 0) bytes") // 添加调试信息
+//            print("开始上传到: \(serverUrl)") // 添加调试信息
+//            print("请求体大小: \(request.httpBody?.count ?? 0) bytes") // 添加调试信息
             
             let (data, response) = try await session.data(for: request)
             
-            print("收到响应: \(response)") // 添加调试信息
-            if let httpResponse = response as? HTTPURLResponse {
-                print("HTTP 状态码: \(httpResponse.statusCode)") // 添加调试信息
-            }
+//            print("收到响应: \(response)") // 添加调试信息
+//            if let httpResponse = response as? HTTPURLResponse {
+//                print("HTTP 状态码: \(httpResponse.statusCode)") // 添加调试信息
+//            }
             
-            let responseString = String(data: data, encoding: .utf8) ?? "无法解析响应"
-            print("响应内容: \(responseString)") // 添加调试信息
+//            let responseString = String(data: data, encoding: .utf8) ?? "无法解析响应"
+//            print("响应内容: \(responseString)") // 添加调试信息
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 uploadMessage = "无效的HTTP响应"
-                return false
+                return (false, nil)
             }
             
             if httpResponse.statusCode == 200 {
-                // 检查响应内容是否包含成功标志
-                if responseString.contains("success") || responseString.contains("Success") || responseString.contains("\"score\"") {
-                    uploadMessage = "上传成功"
-                    return true
-                } else {
-                    uploadMessage = "上传完成但服务器返回异常: \(responseString)"
-                    return false
+                // 【修改部分】解析服务器返回的 JSON 数据
+                do {
+                    if let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                       let responseData = jsonObject["data"] as? [String: Any] {
+                        let jsonData = try JSONSerialization.data(withJSONObject: responseData)
+                        let analysisResult = try JSONDecoder().decode(AnalysisResponse.self, from: jsonData)
+                        uploadMessage = "云端分析完成"
+                        return (true, analysisResult)
+                    }
+                } catch {
+                    print("解析结果失败: \(error)")
                 }
+                uploadMessage = "上传成功，但解析结果失败"
+                return (true, nil)
             } else {
+                let responseString = String(data: data, encoding: .utf8) ?? ""
                 uploadMessage = "服务器错误: \(httpResponse.statusCode) - \(responseString)"
-                return false
+                return (false, nil)
             }
         } catch {
             print("上传错误: \(error)") // 添加调试信息
@@ -203,7 +212,7 @@ class NetworkManager: ObservableObject {
             } else {
                 uploadMessage = "上传失败: \(error.localizedDescription)"
             }
-            return false
+            return (false, nil)
         }
     }
     

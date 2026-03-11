@@ -462,21 +462,29 @@ struct RecordDetailView: View {
         }
     }
     
+    // 【修改部分】重写上传与结果处理逻辑
     func uploadRecord(record: DrivingRecord) async {
-        networkManager.uploadMessage = "正在上传..."
-        let success = await networkManager.uploadFiles(videoUrl: record.getVideoUrl, csvUrl: record.getCsvUrl)
+        networkManager.uploadMessage = "正在上传并分析..."
+        // 接收返回的真实结果
+        let (success, result) = await networkManager.uploadFiles(videoUrl: record.getVideoUrl, csvUrl: record.getCsvUrl)
         
         if success {
-            networkManager.uploadMessage = "上传成功，等待分析结果..."
-            updateRecordStatus(id: record.id, status: "uploaded")
-            await fetchAnalysisResult(recordId: record.id)
+            if let realResult = result {
+                networkManager.uploadMessage = "分析成功！"
+                updateRecordStatus(id: record.id, status: "analyzed", result: realResult)
+            } else {
+                networkManager.uploadMessage = "上传成功，但未获取到分析结果"
+                updateRecordStatus(id: record.id, status: "uploaded", result: nil)
+            }
         } else {
-            updateRecordStatus(id: record.id, status: "failed")
+            updateRecordStatus(id: record.id, status: "failed", result: nil)
             alertMessage = "上传失败，请检查网络连接或服务器配置"
             showingAlert = true
         }
     }
-    
+
+    // 【修改部分】删除原有的 fetchAnalysisResult 模拟等待方法
+    /*
     func fetchAnalysisResult(recordId: UUID) async {
         for _ in 0..<30 {
             try? await Task.sleep(nanoseconds: 2_000_000_000)
@@ -487,15 +495,16 @@ struct RecordDetailView: View {
             }
         }
     }
+    */
     
-    func updateRecordStatus(id: UUID, status: String) {
+    // 【修改部分】修改状态更新方法，接收真实的分析结果
+    func updateRecordStatus(id: UUID, status: String, result: AnalysisResponse? = nil) {
         if let index = records.firstIndex(where: { $0.id == id }) {
             var updated = records[index]
             updated.uploadStatus = status
             
-            if status == "analyzed" {
-                let mockResult = AnalysisResponse(score: 85, summary: "驾驶平稳，无急加速或急刹车", details: "建议继续保持良好驾驶习惯")
-                updated.analysisResult = mockResult
+            if let validResult = result {
+                updated.analysisResult = validResult
             }
             
             records[index] = updated
