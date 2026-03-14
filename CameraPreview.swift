@@ -8,32 +8,38 @@
 import SwiftUI
 import AVFoundation
 
+//1. 创建一个自定义的UIView, 专门用于承载视频预览
+class VideoPreviewView: UIView{
+    // 关键修改： 告诉系统这个View的基础图层就是AVCaptureVideoPreviewLayer
+    override class var layerClass: AnyClass{
+        return AVCaptureVideoPreviewLayer.self
+    }
+    
+    // 提供一个便捷属性来访问这个图层
+    var videoPreviewLayer: AVCaptureVideoPreviewLayer{
+        return layer as! AVCaptureVideoPreviewLayer
+    }
+}
+
+// 2. SwiftUI包装器
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
     
-    // 创建 UIView
-    func makeUIView(context: Context) -> UIView {
-        // 1. 创建一个普通的 UIView，初始 frame 为零
-        let view = UIView(frame: .zero)
+    func makeUIView(context: Context) -> VideoPreviewView {
+        let view = VideoPreviewView()
         view.backgroundColor = .black // 设置背景色，避免加载时闪白
         
-        // 2. 创建预览层
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill // 保持比例填满屏幕
-        
-        // 3. 将预览层添加到视图的 layer 中
-        view.layer.addSublayer(previewLayer)
+        // 将相机Session绑定在图层上
+        view.videoPreviewLayer.session = session
+        // 设置画面拉伸模式: 保持比例并填满屏幕
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill // 保持比例填满屏幕
         
         return view
     }
     
     // 更新 UIView (当布局发生变化时调用)
-    func updateUIView(_ uiView: UIView, context: Context) {
-        // 关键步骤：在布局更新时，修正 previewLayer 的大小
-        // 这样无论屏幕旋转还是分屏，预览层都能正确填满
-        if let layer = uiView.layer.sublayers?.first as? AVCaptureVideoPreviewLayer {
-            layer.frame = uiView.bounds
-        }
+    func updateUIView(_ uiView: VideoPreviewView, context: Context) {
+        // 因为重写了layerClass，系统会自动处理尺寸变化，这里不需要写任何代码了！
     }
 }
 
